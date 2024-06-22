@@ -28,6 +28,9 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
+      - name: Grant execute permission for Maven wrapper
+        run: chmod +x mvnw
+
       - name: Validate Maven wrapper
         run: ./mvnw --version
 
