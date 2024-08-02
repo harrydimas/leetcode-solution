@@ -16,7 +16,7 @@
   <properties>
     <java.version>17</java.version>
     <sonar.host.url>http://localhost:9000</sonar.host.url>
-    <sonar.login>sqa_bbce6450572f6f7d6342d07542f42c07088e45f9</sonar.login>
+    <sonar.token>sqa_bbce6450572f6f7d6342d07542f42c07088e45f9</sonar.token>
   </properties>
 
   <dependencies>
@@ -89,6 +89,12 @@
       <artifactId>jjwt</artifactId>
       <version>0.9.1</version>
     </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.11.0</version>
+    </dependency>
+
   </dependencies>
 
   <build>

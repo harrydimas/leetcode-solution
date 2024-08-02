@@ -21,6 +21,7 @@ public class HomeController {
     @GetMapping("/")
     @ResponseBody
     public String index() {
+//        System.out.println("test");
         return "Hello World!";
     }
 
