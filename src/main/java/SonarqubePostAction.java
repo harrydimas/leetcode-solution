@@ -29,21 +29,25 @@ public class SonarqubePostAction {
     private static String projectKey = null;
     private static String serverUrl = null;
     private static String executedAt = null;
+    private static String pullRequestUrl = null;
     private static String pullRequestTitle = null;
 
     public static void main(String[] args) {
 
-        if (args.length == 3) {
-            token = args[0] + ":";
-            slackWebhookUrl = args[1];
-            pullRequestTitle = args[2];
-        } else {
-            return;
-        }
+        logger.info("Starting Sonarqube Post Action");
+        token = System.getProperty("sonarToken") + ":";
+        logger.info(() -> "sonarToken = " + token);
+        slackWebhookUrl = System.getProperty("slackWebhook");
+        logger.info(() -> "slackWebhook = " + slackWebhookUrl);
+        pullRequestUrl = System.getProperty("pullRequestUrl");
+        logger.info(() -> "pullRequestUrl = " + pullRequestUrl);
+        pullRequestTitle = System.getProperty("pullRequestTitle");
+        logger.info(() -> "pullRequestTitle = " + pullRequestTitle);
 
         try (FileInputStream fis = new FileInputStream(FILE_PATH)) {
             var properties = new Properties();
             properties.load(fis);
+            logger.info(() -> "properties = " + properties);
 
             projectKey = properties.getProperty("projectKey");
             serverUrl = properties.getProperty("serverUrl");
@@ -62,6 +66,7 @@ public class SonarqubePostAction {
     }
 
     private static boolean isTaskSuccess(String url) throws InterruptedException {
+        logger.info(() -> "isTaskSuccess = " + url);
         var response = callApi(url);
         var task = (Map) response.get("task");
         var isSuccess = SUCCESS.equals(task.get("status"));
@@ -76,22 +81,22 @@ public class SonarqubePostAction {
 
     private static void getAllIssues() {
         var executedDate = parseToLocalDateTime(executedAt);
-        var createdAfter = executedDate.minusMinutes(8).format(DateTimeFormatter.ISO_DATE_TIME) + "%2B0000";
+        var createdAfter = executedDate.minusMinutes(15).format(DateTimeFormatter.ISO_DATE_TIME) + "%2B0000";
         var createdBefore = executedDate.plusMinutes(2).format(DateTimeFormatter.ISO_DATE_TIME) + "%2B0000";
         var url = serverUrl + "/api/issues/search?componentKeys=" + projectKey + "&createdAfter=" + createdAfter + "&createdBefore=" + createdBefore + "&issueStatuses=OPEN";
         var response = callApi(url);
-        if ((Double) response.get("total") > 0) {
-            sendSlackMessage(response);
-        }
+        sendSlackMessage(response);
     }
 
     private static LocalDateTime parseToLocalDateTime(String dateTimeString) {
+        logger.info(() -> "parseToLocalDateTime = " + dateTimeString);
         var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
         var offsetDateTime = OffsetDateTime.parse(dateTimeString, formatter);
         return offsetDateTime.toLocalDateTime();
     }
 
     private static Map<String, Object> callApi(String url) {
+        logger.info(() -> "callApi: " + url);
         try {
             var client = HttpClient.newHttpClient();
             var request = HttpRequest.newBuilder()
@@ -115,13 +120,17 @@ public class SonarqubePostAction {
     }
 
     private static void sendSlackMessage(Map<String, Object> response) {
-        StringBuilder text = new StringBuilder(SLACK_MENTION + " there are new issues after scanning a PR with title `" + pullRequestTitle + "`\n"
-                + ">*New Issues*\n");
-
+        logger.info(() -> "response: " + response);
         var issues = (List<Map>) response.get("issues");
-        for (var issue : issues) {
-            var sqUrl = serverUrl + "/project/issues?open=" + issue.get("key") + "&id=" + projectKey;
-            text.append("> - ").append(issue.get("message")).append(" <").append(sqUrl).append("|open> \n");
+        StringBuilder text = new StringBuilder(SLACK_MENTION);
+        text.append(" ").append(issues.size()).append(" open issues found after scanning ")
+                .append("<").append(pullRequestUrl).append("|PR> with title `").append(pullRequestTitle).append("`");
+        if (!issues.isEmpty()) {
+            text.append("\n").append(">*New Issues*\n");
+            for (var issue : issues) {
+                var sqUrl = serverUrl + "/project/issues?open=" + issue.get("key") + "&id=" + projectKey;
+                text.append("> - ").append(issue.get("message")).append(" <").append(sqUrl).append("|open> \n");
+            }
         }
 
         var json = new HashMap<>();
@@ -133,7 +142,8 @@ public class SonarqubePostAction {
         sendMessage(gson.toJson(json, Map.class));
     }
 
-    public static void sendMessage(String message) {
+    private static void sendMessage(String message) {
+        logger.info(() -> "sendMessage: " + message);
         try {
             var client = HttpClient.newHttpClient();
             var bodyPublisher = HttpRequest.BodyPublishers.ofString(message);
