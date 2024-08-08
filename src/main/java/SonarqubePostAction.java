@@ -29,6 +29,7 @@ public class SonarqubePostAction {
     private static String token = null;
     private static String projectKey = null;
     private static String serverUrl = null;
+    private static String startedAt = null;
     private static String executedAt = null;
     private static String pullRequestUrl = null;
     private static String pullRequestTitle = null;
@@ -67,6 +68,7 @@ public class SonarqubePostAction {
         var task = (Map) response.get("task");
         var isSuccess = SUCCESS.equals(task.get("status"));
         if (isSuccess) {
+            startedAt = (String) task.get("startedAt");
             executedAt = (String) task.get("executedAt");
         } else if (FAILED.equals(task.get("status"))) {
             return false;
@@ -78,9 +80,8 @@ public class SonarqubePostAction {
     }
 
     private static void getAllIssues() {
-        var executedDate = parseToLocalDateTime(executedAt);
-        var createdAfter = executedDate.minusMinutes(10).format(DateTimeFormatter.ISO_DATE_TIME) + "%2B0000";
-        var createdBefore = executedDate.plusMinutes(2).format(DateTimeFormatter.ISO_DATE_TIME) + "%2B0000";
+        var createdAfter = parseToLocalDateTime(startedAt).minusMinutes(10).format(DateTimeFormatter.ISO_DATE_TIME).concat("%2B0000");
+        var createdBefore = parseToLocalDateTime(executedAt).format(DateTimeFormatter.ISO_DATE_TIME).concat("%2B0000");
         var url = serverUrl + "/api/issues/search?componentKeys=" + projectKey + "&createdAfter=" + createdAfter + "&createdBefore=" + createdBefore + "&issueStatuses=OPEN";
         var response = callApi(url);
         sendSlackMessage(response);
