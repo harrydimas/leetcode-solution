@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: production
+    environment: development
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -33,7 +33,7 @@ jobs:
       - name: Validate Maven wrapper
         run: |
           ./mvnw --version
-          echo "sonar_token: ${{ vars.SONAR_URL }}"
+          echo "sonar_url: ${{ vars.SONAR_URL }}"
 
       - name: Build with Maven
         run: ./mvnw clean package
