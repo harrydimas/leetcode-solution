@@ -1,6 +1,7 @@
 package com.github.harrydimas.leetcode_solution.user.service;
 
 import com.github.harrydimas.leetcode_solution.user.domain.User;
+import com.github.harrydimas.leetcode_solution.user.model.UpdateUserDTO;
 import com.github.harrydimas.leetcode_solution.user.model.UserDTO;
 import com.github.harrydimas.leetcode_solution.user.repos.UserRepository;
 import com.github.harrydimas.leetcode_solution.util.NotFoundException;
@@ -10,12 +11,8 @@ import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -39,14 +36,18 @@ public class UserService {
 
     public UUID create(final UserDTO userDTO) {
         final User user = new User();
-        mapToEntity(userDTO, user);
+        user.setUsername(userDTO.getUsername());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
         return userRepository.save(user).getId();
     }
 
-    public void update(final UUID id, final UserDTO userDTO) {
+    public void update(final UUID id, final UpdateUserDTO userDTO) {
         final User user = userRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
-        mapToEntity(userDTO, user);
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
         userRepository.save(user);
     }
 
@@ -60,16 +61,6 @@ public class UserService {
         userDTO.setFirstName(user.getFirstName());
         userDTO.setLastName(user.getLastName());
         return userDTO;
-    }
-
-    private User mapToEntity(final UserDTO userDTO, final User user) {
-        user.setUsername(userDTO.getUsername());
-        if (StringUtils.hasLength(userDTO.getPassword())) {
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        }
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
-        return user;
     }
 
 }

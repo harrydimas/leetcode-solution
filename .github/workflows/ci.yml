@@ -8,9 +8,8 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    environment: development
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -36,3 +35,28 @@ jobs:
 
       - name: Build with Maven
         run: ./mvnw clean package
+
+#      - name: Analyze with SonarQube
+#        run: |
+#          ./mvnw sonar:sonar \
+#            -Dsonar.host.url=http://localhost:9000 \
+#            -Dsonar.token=sqa_bbce6450572f6f7d6342d07542f42c07088e45f9
+
+      - name: print sonarqube report
+        run: |
+          echo "github.workspace=${{ github.workspace }}"
+          echo "github.action_path=${{ github.action_path }}"
+          echo "github.action=${{ github.action }}"
+          echo "github.action_repository=${{ github.action_repository }}"
+          echo "github.base_ref=${{ github.base_ref }}"
+
+#      - name: SonarQube post action
+#        uses: harrydimas/sonarqube-post-action@main
+#        with:
+#          file_path: '${{ github.workspace }}/target/sonar/report-task.txt'
+#          sonar_token: 'sqa_bbce6450572f6f7d6342d07542f42c07088e45f9'
+#          slack_webhook: 'https://hooks.slack.com/services/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'
+#          slack_mention: '<!subteam^S050C8Z89MH>'
+#          slack_channel: '#notif-sonarqube-dev'
+#          pull_request_url: 'https://github.com/alami-group/mina-alami/pull/2762'
+#          pull_request_title: 'feat: sonarqube integration'

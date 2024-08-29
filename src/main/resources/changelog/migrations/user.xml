@@ -33,4 +33,15 @@
     </createTable>
   </changeSet>
 
+  <changeSet id="user_version" author="dsulistyono">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="user_" columnName="version" />
+      </not>
+    </preConditions>
+    <addColumn tableName="user_">
+      <column name="version" type="int4" defaultValue="0" defaultOnNull="true" />
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

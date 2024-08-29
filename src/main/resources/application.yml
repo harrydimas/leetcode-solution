@@ -19,6 +19,7 @@ spring:
             non_contextual_creation: true
         id:
           new_generator_mappings: true
+    show-sql: true
   liquibase:
     enabled: true
     change-log: classpath:changelog/main.xml

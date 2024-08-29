@@ -1,5 +1,6 @@
 package com.github.harrydimas.leetcode_solution.user.rest;
 
+import com.github.harrydimas.leetcode_solution.user.model.UpdateUserDTO;
 import com.github.harrydimas.leetcode_solution.user.model.UserDTO;
 import com.github.harrydimas.leetcode_solution.user.service.UserService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -49,7 +50,7 @@ public class UserResource {
 
     @PutMapping("/{id}")
     public ResponseEntity<UUID> updateUser(@PathVariable(name = "id") final UUID id,
-            @RequestBody @Valid final UserDTO userDTO) {
+            @RequestBody @Valid final UpdateUserDTO userDTO) {
         userService.update(id, userDTO);
         return ResponseEntity.ok(id);
     }

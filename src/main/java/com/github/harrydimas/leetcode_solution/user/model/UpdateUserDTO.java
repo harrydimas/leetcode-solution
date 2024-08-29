@@ -5,20 +5,9 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.UUID;
-
-
 @Getter
 @Setter
-public class UserDTO {
-
-    private UUID id;
-
-    @Size(max = 255)
-    private String username;
-
-    @Size(max = 255)
-    private String password;
+public class UpdateUserDTO {
 
     @NotNull
     @Size(max = 255)
