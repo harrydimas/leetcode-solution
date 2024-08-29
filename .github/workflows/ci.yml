@@ -45,9 +45,10 @@ jobs:
       - name: print sonarqube report
         run: |
           echo "github.workspace=${{ github.workspace }}"
-          echo "github.action_path=${{ GITHUB_ACTION_PATH }}"
-          echo "github.action=${{ GITHUB_ACTIONS }}"
-          echo "github.action_repository=${{ GITHUB_ACTION_REPOSITORY }}"
+          echo "github.action_path=${{ github.action_path }}"
+          echo "github.action=${{ github.action }}"
+          echo "github.action_repository=${{ github.action_repository }}"
+          echo "github.base_ref=${{ github.base_ref }}"
 
 #      - name: SonarQube post action
 #        uses: harrydimas/sonarqube-post-action@main
